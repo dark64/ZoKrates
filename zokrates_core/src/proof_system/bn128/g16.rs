@@ -7,7 +7,7 @@ use crate::proof_system::ProofSystem;
 use bellman::groth16::Parameters;
 use regex::Regex;
 use std::fs::File;
-use std::io::{BufRead, BufReader, Write};
+use std::io::{BufRead, BufReader, Write, Read};
 use std::path::PathBuf;
 use zokrates_field::field::FieldPrime;
 
@@ -57,9 +57,33 @@ impl ProofSystem for G16 {
         true
     }
 
-    fn export_solidity_verifier(&self, reader: BufReader<File>, is_abiv2: bool) -> String {
-        let mut lines = reader.lines();
+    fn generate_proof_wasm(
+        &self,
+        program: ir::Prog<FieldPrime>,
+        witness: ir::Witness<FieldPrime>,
+        proving_key: &[u8],
+    ) -> String {
+        std::env::set_var("BELLMAN_VERBOSE", "0");
 
+        println!("{}", G16_WARNING);
+
+        let computation = Computation::with_witness(program, witness);
+        let params = Parameters::read(proving_key, true).unwrap();
+
+        let proof = computation.clone().prove(&params);
+
+        serialize::serialize_proof(&proof, &computation.public_inputs_values())
+    }
+
+    fn export_solidity_verifier(&self, mut reader: BufReader<File>, is_abiv2: bool) -> String {
+        let mut buffer = String::new();
+        reader.read_to_string(&mut buffer).expect("Unable to read string");
+
+        self.export_solidity_verifier_wasm(buffer, is_abiv2)
+    }
+
+    fn export_solidity_verifier_wasm(&self, vk: String, is_abiv2: bool) -> String {
+        let mut lines = vk.lines();
         let (mut template_text, solidity_pairing_lib) = if is_abiv2 {
             (
                 String::from(CONTRACT_TEMPLATE_V2),
@@ -83,10 +107,10 @@ impl ProofSystem for G16 {
         let vk_input_len_regex = Regex::new(r#"(<%vk_input_length%>)"#).unwrap();
 
         for _ in 0..4 {
-            let current_line: String = lines
-                .next()
-                .expect("Unexpected end of file in verification key!")
-                .unwrap();
+            let current_line: &str = lines
+            .next()
+            .expect("Unexpected end of file in verification key!");
+
             let current_line_split: Vec<&str> = current_line.split("=").collect();
             assert_eq!(current_line_split.len(), 2);
             template_text = vk_regex
@@ -94,10 +118,10 @@ impl ProofSystem for G16 {
                 .into_owned();
         }
 
-        let current_line: String = lines
+        let current_line: &str = lines
             .next()
-            .expect("Unexpected end of file in verification key!")
-            .unwrap();
+            .expect("Unexpected end of file in verification key!");
+
         let current_line_split: Vec<&str> = current_line.split("=").collect();
         assert_eq!(current_line_split.len(), 2);
         let gamma_abc_count: i32 = current_line_split[1].trim().parse().unwrap();
@@ -118,10 +142,9 @@ impl ProofSystem for G16 {
         let mut gamma_abc_repeat_text = String::new();
         for x in 0..gamma_abc_count {
             let mut curr_template = gamma_abc_template.clone();
-            let current_line: String = lines
+            let current_line: &str = lines
                 .next()
-                .expect("Unexpected end of file in verification key!")
-                .unwrap();
+                .expect("Unexpected end of file in verification key!");
             let current_line_split: Vec<&str> = current_line.split("=").collect();
             assert_eq!(current_line_split.len(), 2);
             curr_template = vk_gamma_abc_index_regex
