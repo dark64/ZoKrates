@@ -2,12 +2,12 @@
 name = "zokrates_core"
 version = "0.4.0"
 authors = ["Jacob Eberhardt <jacob.eberhardt@tu-berlin.de>", "Dennis Kuhnert <mail@kyroy.com>"]
-repository = "https://github.com/JacobEberhardt/ZoKrates"
+repository = "https://github.com/Zokrates/ZoKrates"
 readme = "README.md"
 build = "build.rs"
 
 [features]
-default = ["wasm"]
+default = ["multicore"]
 libsnark = ["cc", "cmake", "git2"]
 wasm_solvers = ["wasmi", "parity-wasm", "rustc-hex"]
 wasm = ["bellman_ce/wasm", "zokrates_embed/wasm"]
