@@ -1,5 +1,13 @@
 #![feature(box_patterns, box_syntax)]
 
+use std::collections::BTreeMap;
+use std::convert::TryFrom;
+use std::fmt;
+use zokrates_core::typed_absy::Type;
+use zokrates_field::field::Field;
+
+pub mod abi_gen;
+
 pub enum Inputs<T> {
     Raw(Vec<T>),
     Abi(CheckedValues<T>),
@@ -13,13 +21,6 @@ impl<T: From<usize>> Encode<T> for Inputs<T> {
         }
     }
 }
-
-use std::collections::BTreeMap;
-use std::convert::TryFrom;
-use std::fmt;
-use zokrates_core::typed_absy::Type;
-
-use zokrates_field::field::Field;
 
 type Map<K, V> = BTreeMap<K, V>;
 
