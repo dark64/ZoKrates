@@ -1,18 +1,30 @@
-use serde::ser::{Serialize, SerializeStruct, Serializer};
 use std::fmt;
 use zokrates_core::ir::Prog;
 use zokrates_core::typed_absy::Type;
 use zokrates_field::field::Field;
 
-pub struct Input {
+#[derive(serde_derive::Serialize)]
+struct InnerComponent {
+    name: String,
+    #[serde(rename = "type")]
+    internal_type: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    components: Option<Vec<InnerComponent>>,
+}
+
+#[derive(serde_derive::Serialize)]
+pub struct InputComponent {
     name: String,
     public: bool,
-    internal_type: Type,
+    #[serde(rename = "type")]
+    internal_type: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    components: Option<Vec<InnerComponent>>,
 }
 
 #[derive(serde_derive::Serialize)]
 pub struct Abi {
-    inputs: Vec<Input>,
+    inputs: Vec<InputComponent>
 }
 
 impl Abi {
@@ -27,30 +39,38 @@ impl fmt::Display for Abi {
     }
 }
 
-impl Serialize for Input {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        let mut s = serializer.serialize_struct("Input", 3)?;
-        s.serialize_field("name", &self.name)?;
-        s.serialize_field("public", &self.public)?;
-        s.serialize_field("type", &self.internal_type.get_name())?;
-        s.end()
-    }
-}
-
-pub trait NameDef {
+trait AbiType {
     fn get_name(&self) -> String;
+    fn get_inner_components(&self) -> Option<Vec<InnerComponent>>;
 }
 
-impl NameDef for Type {
+impl AbiType for Type {
     fn get_name(&self) -> String {
         match self {
             Type::FieldElement => String::from("field"),
             Type::Boolean => String::from("bool"),
             Type::Array(box ty, size) => format!("{}[{}]", ty.get_name(), size),
             Type::Struct(_) => String::from("struct"),
+        }
+    }
+
+    fn get_inner_components(&self) -> Option<Vec<InnerComponent>> {
+        match self {
+            Type::Struct(vec) => {
+                let mut components: Vec<InnerComponent> = Vec::new();
+                for element in vec {
+                    let ty = &element.1;
+                    components.push(
+                        InnerComponent {
+                            name: String::default(),
+                            internal_type: ty.get_name(),
+                            components: ty.get_inner_components(),
+                        }
+                    )
+                }
+                Some(components)
+            }
+            _ => Option::None
         }
     }
 }
@@ -65,10 +85,11 @@ impl<T: Field> Generator for Prog<T> {
             .signature
             .inputs
             .iter()
-            .map(|t| Input {
-                name: String::from("hello"),
+            .map(|t| InputComponent {
+                name: String::default(),
                 public: true,
-                internal_type: t.clone(),
+                internal_type: t.get_name(),
+                components: t.get_inner_components(),
             })
             .collect();
 
@@ -81,11 +102,12 @@ mod tests {
     extern crate zokrates_core;
     extern crate zokrates_field;
 
-    use crate::abi_gen::{Abi, Generator};
     use zokrates_core::flat_absy::FlatVariable;
     use zokrates_core::ir::{Function, Prog, Statement};
     use zokrates_core::typed_absy::{Signature, Type};
     use zokrates_field::field::FieldPrime;
+
+    use crate::abi_gen::{Abi, Generator};
 
     #[test]
     fn generate_abi() {
