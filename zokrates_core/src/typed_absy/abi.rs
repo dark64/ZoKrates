@@ -62,50 +62,48 @@ impl Abi {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use typed_absy::types::{ArrayType, StructMember, FunctionKey};
-    use typed_absy::{Type, TypedModule, TypedFunction, Parameter, Variable, Identifier};
-    use zokrates_field::field::FieldPrime;
     use std::collections::HashMap;
+    use typed_absy::types::{ArrayType, FunctionKey, StructMember};
+    use typed_absy::{Identifier, Parameter, Type, TypedFunction, TypedModule, Variable};
+    use zokrates_field::field::FieldPrime;
 
     #[test]
     fn generate_abi_from_typed_ast() {
         let mut functions = HashMap::new();
-        functions.insert(FunctionKey::with_id("main"), TypedFunctionSymbol::Here(
-            TypedFunction {
+        functions.insert(
+            FunctionKey::with_id("main"),
+            TypedFunctionSymbol::Here(TypedFunction {
                 arguments: vec![
                     Parameter {
                         id: Variable::field_element(Identifier {
                             id: "a",
                             version: 0,
-                            stack: vec![]
+                            stack: vec![],
                         }),
-                        private: true
+                        private: true,
                     },
                     Parameter {
                         id: Variable::boolean(Identifier {
                             id: "b",
                             version: 0,
-                            stack: vec![]
+                            stack: vec![],
                         }),
-                        private: false
-                    }
+                        private: false,
+                    },
                 ],
                 statements: vec![],
                 signature: Signature::new()
                     .inputs(vec![Type::FieldElement, Type::Boolean])
-                    .outputs(vec![Type::FieldElement])
-            }
-        ));
+                    .outputs(vec![Type::FieldElement]),
+            }),
+        );
 
         let mut modules = HashMap::new();
-        modules.insert(
-            String::from("main"),
-            TypedModule { functions }
-        );
+        modules.insert(String::from("main"), TypedModule { functions });
 
         let typed_ast: TypedProgram<FieldPrime> = TypedProgram {
             main: String::from("main"),
-            modules
+            modules,
         };
 
         let abi: Abi = typed_ast.abi();
@@ -122,7 +120,7 @@ mod tests {
                     ty: Type::Boolean,
                 },
             ],
-            outputs: vec![Type::FieldElement]
+            outputs: vec![Type::FieldElement],
         };
 
         assert_eq!(expected_abi, abi);
@@ -146,9 +144,7 @@ mod tests {
                     ]),
                 },
             ],
-            outputs: vec![
-                Type::Array(ArrayType::new(Type::FieldElement, 2))
-            ],
+            outputs: vec![Type::Array(ArrayType::new(Type::FieldElement, 2))],
         };
 
         let json = serde_json::to_string(&abi).unwrap();

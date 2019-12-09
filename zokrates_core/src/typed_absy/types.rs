@@ -36,7 +36,7 @@ impl ArrayType {
     pub fn new(ty: Type, size: usize) -> Self {
         ArrayType {
             ty: Box::new(ty),
-            size
+            size,
         }
     }
 }
