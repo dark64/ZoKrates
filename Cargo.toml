@@ -4,6 +4,7 @@ members = [
     "zokrates_core",
     "zokrates_cli",
     "zokrates_fs_resolver",
+    "zokrates_ext_resolver",
     "zokrates_stdlib",
     "zokrates_embed",
     "zokrates_abi",
