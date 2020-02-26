@@ -11,7 +11,7 @@ use zokrates_core::compile::{ResolvedModule, Resolver};
 use zokrates_core::imports::Error;
 
 lazy_static! {
-    static ref URL_REGEX: Regex = Regex::new(r#"https?://"#).unwrap();
+    static ref URL_REGEX: Regex = Regex::new(r#"^https?://"#).unwrap();
 }
 
 pub struct SmartResolver {}
