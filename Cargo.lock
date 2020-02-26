@@ -2356,7 +2356,7 @@ dependencies = [
  "zokrates_abi",
  "zokrates_core",
  "zokrates_field",
- "zokrates_fs_resolver",
+ "zokrates_resolvers",
 ]
 
 [[package]]
@@ -2407,17 +2407,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "zokrates_ext_resolver"
-version = "0.1.0"
-dependencies = [
- "cfg-if",
- "lazy_static",
- "regex 1.3.4",
- "reqwest",
- "zokrates_core",
-]
-
-[[package]]
 name = "zokrates_field"
 version = "0.3.5"
 dependencies = [
@@ -2432,13 +2421,6 @@ dependencies = [
  "serde",
  "serde_derive",
  "serde_json",
-]
-
-[[package]]
-name = "zokrates_fs_resolver"
-version = "0.5.0"
-dependencies = [
- "tempfile",
 ]
 
 [[package]]
@@ -2464,6 +2446,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "zokrates_resolvers"
+version = "0.1.0"
+dependencies = [
+ "lazy_static",
+ "regex 1.3.4",
+ "reqwest",
+ "tempfile",
+ "zokrates_core",
+]
+
+[[package]]
 name = "zokrates_stdlib"
 version = "0.1.5"
 dependencies = [
@@ -2482,5 +2475,5 @@ dependencies = [
  "serde_json",
  "zokrates_core",
  "zokrates_field",
- "zokrates_fs_resolver",
+ "zokrates_resolvers",
 ]
