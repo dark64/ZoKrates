@@ -129,10 +129,8 @@ impl fmt::Display for CompileErrorInner {
     }
 }
 
-pub type ResolvedModule = (String, PathBuf);
-
 pub trait Resolver<E: Into<imports::Error>> {
-    fn resolve(&self, current_location: PathBuf, import_location: PathBuf) -> Result<ResolvedModule, E>;
+    fn resolve(&self, current_location: PathBuf, import_location: PathBuf) -> Result<(String, PathBuf), E>;
 }
 
 pub fn compile<T: Field, E: Into<imports::Error>>(

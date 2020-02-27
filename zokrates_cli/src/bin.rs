@@ -19,7 +19,7 @@ use zokrates_core::proof_system::*;
 use zokrates_core::typed_absy::abi::Abi;
 use zokrates_core::typed_absy::{types::Signature, Type};
 use zokrates_field::field::{Field, FieldPrime};
-use zokrates_resolvers::SmartResolver;
+use zokrates_fs_resolver::FileSystemResolver;
 
 fn main() {
     cli().unwrap_or_else(|e| {
@@ -299,7 +299,7 @@ fn cli() -> Result<(), String> {
                 )
             };
 
-            let resolver = SmartResolver::new();
+            let resolver = FileSystemResolver::new();
             let artifacts: CompilationArtifacts<FieldPrime> =
                 compile(source, path, Some(&resolver)).map_err(|e| {
                     format!(
@@ -682,7 +682,7 @@ mod tests {
             let mut source = String::new();
             reader.read_to_string(&mut source).unwrap();
 
-            let resolver = SmartResolver::new();
+            let resolver = FileSystemResolver::new();
             let _: CompilationArtifacts<FieldPrime> =
                 compile(source, path, Some(&resolver)).unwrap();
         }
@@ -704,7 +704,7 @@ mod tests {
             let mut source = String::new();
             reader.read_to_string(&mut source).unwrap();
 
-            let resolver = SmartResolver::new();
+            let resolver = FileSystemResolver::new();
             let artifacts: CompilationArtifacts<FieldPrime> =
                 compile(source, path, Some(&resolver)).unwrap();
 
@@ -732,7 +732,7 @@ mod tests {
             let mut source = String::new();
             reader.read_to_string(&mut source).unwrap();
 
-            let resolver = SmartResolver::new();
+            let resolver = FileSystemResolver::new();
             let artifacts: CompilationArtifacts<FieldPrime> =
                 compile(source, path, Some(&resolver)).unwrap();
 

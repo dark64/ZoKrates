@@ -1,0 +1,11 @@
+[package]
+name = "zokrates_fs_resolver"
+version = "0.1.0"
+authors = ["dark64 <darem966@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+zokrates_core = { version = "0.4.2", path = "../zokrates_core" }
+
+[dev-dependencies]
+tempfile = "3"

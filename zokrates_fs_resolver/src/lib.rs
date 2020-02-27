@@ -3,7 +3,7 @@ use std::io;
 
 use std::path::Path;
 use std::path::{Component, PathBuf};
-use zokrates_core::compile::{ResolvedModule, Resolver};
+use zokrates_core::compile::{Resolver};
 
 const ZOKRATES_HOME: &str = &"ZOKRATES_HOME";
 
@@ -20,7 +20,7 @@ impl Resolver<io::Error> for FileSystemResolver {
         &self,
         current_location: PathBuf,
         import_location: PathBuf,
-    ) -> Result<ResolvedModule, io::Error> {
+    ) -> Result<(String, PathBuf), io::Error> {
         let source = Path::new(&import_location);
 
         if !current_location.is_file() {
