@@ -142,6 +142,7 @@ pub fn fold_statement<'ast, T: Field, F: Folder<'ast, T>>(
     s: TypedStatement<'ast, T>,
 ) -> Vec<TypedStatement<'ast, T>> {
     let res = match s {
+        TypedStatement::Log(log) => TypedStatement::Log(log),
         TypedStatement::Return(expressions) => TypedStatement::Return(
             expressions
                 .into_iter()

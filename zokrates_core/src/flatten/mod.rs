@@ -1046,8 +1046,6 @@ impl<'ast, T: Field> Flattener<'ast, T> {
         let statements: Vec<_> = statements
             .into_iter()
             .map(|stat| match stat {
-                // set return statements as expression result
-                FlatStatement::Return(..) => unreachable!(),
                 FlatStatement::Definition(var, rhs) => {
                     let new_var = self.use_sym();
                     replacement_map.insert(var, new_var);
@@ -1080,6 +1078,7 @@ impl<'ast, T: Field> Flattener<'ast, T> {
                         inputs: new_inputs,
                     })
                 }
+                _ => unreachable!(),
             })
             .collect();
 
@@ -1568,6 +1567,9 @@ impl<'ast, T: Field> Flattener<'ast, T> {
         stat: TypedStatement<'ast, T>,
     ) {
         match stat {
+            TypedStatement::Log(log) => {
+                statements_flattened.push(FlatStatement::Log(log))
+            },
             TypedStatement::Return(exprs) => {
                 let flat_expressions = exprs
                     .into_iter()

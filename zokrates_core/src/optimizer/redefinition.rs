@@ -120,6 +120,7 @@ impl<T: Field> Folder<T> for RedefinitionOptimizer<T> {
                 }
                 vec![Statement::Directive(d)]
             }
+            Statement::Log(log) => vec![Statement::Log(log)],
         }
     }
 

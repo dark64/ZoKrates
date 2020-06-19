@@ -12,6 +12,7 @@ mod propagation;
 mod return_binder;
 mod unconstrained_vars;
 mod unroll;
+mod statement_logger;
 
 use self::constrain_inputs::InputConstrainer;
 use self::inline::Inliner;
@@ -23,6 +24,7 @@ use crate::flat_absy::FlatProg;
 use crate::typed_absy::TypedProgram;
 use ir::Prog;
 use zokrates_field::Field;
+use static_analysis::statement_logger::StatementLogger;
 
 pub trait Analyse {
     fn analyse(self) -> Self;
@@ -30,8 +32,11 @@ pub trait Analyse {
 
 impl<'ast, T: Field> Analyse for TypedProgram<'ast, T> {
     fn analyse(self) -> Self {
+        let r = StatementLogger::create_logs(self);
+
         // propagated unrolling
-        let r = PropagatedUnroller::unroll(self).unwrap_or_else(|e| panic!(e));
+        let r = PropagatedUnroller::unroll(r).unwrap_or_else(|e| panic!(e));
+
         // return binding
         let r = ReturnBinder::bind(r);
         // inline

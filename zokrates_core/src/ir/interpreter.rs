@@ -43,6 +43,8 @@ impl Interpreter {
             witness.insert(arg.clone(), value.clone().into());
         }
 
+        let mut log_stack: Vec<String> = Vec::new();
+
         for statement in &main.statements {
             match statement {
                 Statement::Constraint(quad, lin) => match lin.is_assignee(&witness) {
@@ -57,6 +59,7 @@ impl Interpreter {
                             return Err(Error::UnsatisfiedConstraint {
                                 left: lhs_value.to_dec_string(),
                                 right: rhs_value.to_dec_string(),
+                                stat: log_stack.pop(),
                             });
                         }
                     }
@@ -86,6 +89,7 @@ impl Interpreter {
                         }
                     }
                 }
+                Statement::Log(log) => log_stack.push(log.clone()),
             }
         }
 
@@ -204,9 +208,16 @@ impl<T: Field> QuadComb<T> {
 
 #[derive(PartialEq, Serialize, Deserialize, Clone)]
 pub enum Error {
-    UnsatisfiedConstraint { left: String, right: String },
+    UnsatisfiedConstraint {
+        left: String,
+        right: String,
+        stat: Option<String>,
+    },
     Solver,
-    WrongInputCount { expected: usize, received: usize },
+    WrongInputCount {
+        expected: usize,
+        received: usize,
+    },
 }
 
 impl fmt::Display for Error {
@@ -215,7 +226,13 @@ impl fmt::Display for Error {
             Error::UnsatisfiedConstraint {
                 ref left,
                 ref right,
-            } => write!(f, "Expected {} to equal {}", left, right),
+                ref stat,
+            } => {
+                let statement = stat
+                    .as_ref()
+                    .map_or(String::default(), |v| format!(" (constraint: {})", v));
+                write!(f, "Expected {} to equal {}{}", left, right, statement)
+            }
             Error::Solver => write!(f, ""),
             Error::WrongInputCount { expected, received } => write!(
                 f,

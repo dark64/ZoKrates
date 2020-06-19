@@ -22,6 +22,7 @@ pub use self::witness::Witness;
 pub enum Statement<T> {
     Constraint(QuadComb<T>, LinComb<T>),
     Directive(Directive<T>),
+    Log(String),
 }
 
 impl<T: Field> PartialEq for Statement<T> {
@@ -90,6 +91,7 @@ impl<T: Field> fmt::Display for Statement<T> {
         match *self {
             Statement::Constraint(ref quad, ref lin) => write!(f, "{} == {}", quad, lin),
             Statement::Directive(ref s) => write!(f, "{}", s),
+            Statement::Log(ref log) => write!(f, "# {}", log),
         }
     }
 }
@@ -115,7 +117,7 @@ impl<T: Field> fmt::Display for Function<T> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "def {}({}) -> ({}):\n{}\n\t return {}",
+            "def {}({}) -> ({}):\n{}\n\treturn {}",
             self.id,
             self.arguments
                 .iter()

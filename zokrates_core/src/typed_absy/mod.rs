@@ -303,6 +303,7 @@ pub enum TypedStatement<'ast, T> {
         Vec<TypedStatement<'ast, T>>,
     ),
     MultipleDefinition(Vec<Variable<'ast>>, TypedExpressionList<'ast, T>),
+    Log(String)
 }
 
 impl<'ast, T: fmt::Debug> fmt::Debug for TypedStatement<'ast, T> {
@@ -334,7 +335,8 @@ impl<'ast, T: fmt::Debug> fmt::Debug for TypedStatement<'ast, T> {
             }
             TypedStatement::MultipleDefinition(ref lhs, ref rhs) => {
                 write!(f, "MultipleDefinition({:?}, {:?})", lhs, rhs)
-            }
+            },
+            TypedStatement::Log(ref log) => write!(f, "Log({})", log)
         }
     }
 }
@@ -387,7 +389,8 @@ impl<'ast, T: fmt::Display> fmt::Display for TypedStatement<'ast, T> {
                     }
                 }
                 write!(f, " = {}", rhs)
-            }
+            },
+            TypedStatement::Log(ref log) => write!(f, "# {}", log)
         }
     }
 }

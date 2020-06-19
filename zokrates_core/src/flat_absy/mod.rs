@@ -92,6 +92,7 @@ pub enum FlatStatement<T: Field> {
     Condition(FlatExpression<T>, FlatExpression<T>),
     Definition(FlatVariable, FlatExpression<T>),
     Directive(FlatDirective<T>),
+    Log(String),
 }
 
 impl<T: Field> fmt::Display for FlatStatement<T> {
@@ -101,6 +102,7 @@ impl<T: Field> fmt::Display for FlatStatement<T> {
             FlatStatement::Return(ref expr) => write!(f, "return {}", expr),
             FlatStatement::Condition(ref lhs, ref rhs) => write!(f, "{} == {}", lhs, rhs),
             FlatStatement::Directive(ref d) => write!(f, "{}", d),
+            FlatStatement::Log(ref log) => write!(f, "# {}", log)
         }
     }
 }
@@ -114,6 +116,7 @@ impl<T: Field> fmt::Debug for FlatStatement<T> {
                 write!(f, "FlatCondition({:?}, {:?})", lhs, rhs)
             }
             FlatStatement::Directive(ref d) => write!(f, "{:?}", d),
+            FlatStatement::Log(ref log) => write!(f, "Log({})", log),
         }
     }
 }
@@ -151,6 +154,7 @@ impl<T: Field> FlatStatement<T> {
                     ..d
                 })
             }
+            _ => self,
         }
     }
 }

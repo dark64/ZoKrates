@@ -74,6 +74,7 @@ impl<'ast, T: Field> Folder<'ast, T> for Propagator<'ast, T> {
 
     fn fold_statement(&mut self, s: TypedStatement<'ast, T>) -> Vec<TypedStatement<'ast, T>> {
         let res = match s {
+            TypedStatement::Log(log) => Some(TypedStatement::Log(log)),
             TypedStatement::Declaration(v) => Some(TypedStatement::Declaration(v)),
             TypedStatement::Return(expressions) => Some(TypedStatement::Return(
                 expressions
